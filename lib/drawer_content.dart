@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zivi_counter_app/shared_preferences.dart';
 
 class DrawerContent extends StatefulWidget {
   @override
@@ -6,6 +8,8 @@ class DrawerContent extends StatefulWidget {
 }
 
 class _DrawerContentState extends State<DrawerContent> {
+  SharedPrefs sharedPrefs = SharedPrefs();
+
   DateTime selectedStartDate = DateTime.now();
   int? selectedDuration = 9;
 
@@ -29,7 +33,6 @@ class _DrawerContentState extends State<DrawerContent> {
       dropdownMenuItems.add(item);
     }
   }
-
 
   void showDurationSelectorDialog() {
     showDialog(
@@ -71,6 +74,7 @@ class _DrawerContentState extends State<DrawerContent> {
                       icon: Icon(Icons.check_circle_outline_outlined),
                       onPressed: () {
                         Navigator.of(context).pop();
+                        sharedPrefs.saveDuration(selectedDuration);
                       },
                       color: Theme.of(context).focusColor,
                       iconSize: 35,
@@ -84,10 +88,9 @@ class _DrawerContentState extends State<DrawerContent> {
   }
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
     buildDropDownMenuItems();
-    print(dropdownMenuItems);
   }
 
   @override
@@ -115,6 +118,7 @@ class _DrawerContentState extends State<DrawerContent> {
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2019),
                 lastDate: DateTime(2119)))!;
+            sharedPrefs.saveStartDate(selectedStartDate);
           },
         ),
         Divider(

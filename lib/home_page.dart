@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zivi_counter_app/drawer_content.dart';
+import 'package:zivi_counter_app/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -9,6 +10,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  SharedPrefs sharedPrefs = SharedPrefs();
+
   double size = 300;
   double screenWidth = 1;
   double screenHeight = 1;
@@ -40,12 +43,15 @@ class _HomePageState extends State<HomePage> {
 
   void calculateProgress() {
     progress = (totalDays - daysLeft) / totalDays;
-    progressPercentage = (progress *100).round();
+    progressPercentage = (progress * 100).round();
   }
 
   @override
   void initState() {
     super.initState();
+    
+    selectedStartDate = sharedPrefs.getStartDate();
+    selectedDuration = sharedPrefs.getDuration() ?? 9;
     calculateDays();
     calculateProgress();
   }
