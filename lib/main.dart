@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zivi_counter_app/home_page.dart';
-import 'package:zivi_counter_app/shared_preferences.dart';
 
-Future<void> main() async {
-  late SharedPreferences _sharedPreferences;
-  
-  runApp(
-    
-    MyApp());
+
+void main() {
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -28,6 +22,9 @@ class MyApp extends StatelessWidget {
         shadowColor: Colors.grey[800],
       ),
       home: HomePage(),
+      routes:{
+        '/HomePage': (context) => HomePage()
+      },
     );
   }
 }

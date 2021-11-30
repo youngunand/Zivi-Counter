@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zivi_counter_app/shared_preferences.dart';
 
 class DrawerContent extends StatefulWidget {
   @override
@@ -8,7 +7,7 @@ class DrawerContent extends StatefulWidget {
 }
 
 class _DrawerContentState extends State<DrawerContent> {
-  SharedPrefs sharedPrefs = SharedPrefs();
+  late SharedPreferences _sharedPreferences;
 
   DateTime selectedStartDate = DateTime.now();
   int? selectedDuration = 9;
@@ -74,7 +73,9 @@ class _DrawerContentState extends State<DrawerContent> {
                       icon: Icon(Icons.check_circle_outline_outlined),
                       onPressed: () {
                         Navigator.of(context).pop();
-                        sharedPrefs.saveDuration(selectedDuration);
+
+                        _sharedPreferences.setInt(
+                            'duration', selectedDuration!);
                       },
                       color: Theme.of(context).focusColor,
                       iconSize: 35,
@@ -87,10 +88,15 @@ class _DrawerContentState extends State<DrawerContent> {
         });
   }
 
+  void initSharedPreferences() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+  }
+
   @override
-  void initState() async {
+  void initState() {
     super.initState();
     buildDropDownMenuItems();
+    initSharedPreferences();
   }
 
   @override
@@ -118,7 +124,8 @@ class _DrawerContentState extends State<DrawerContent> {
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2019),
                 lastDate: DateTime(2119)))!;
-            sharedPrefs.saveStartDate(selectedStartDate);
+            _sharedPreferences.setInt(
+                'startDate', selectedStartDate.millisecondsSinceEpoch);
           },
         ),
         Divider(
@@ -134,6 +141,20 @@ class _DrawerContentState extends State<DrawerContent> {
             showDurationSelectorDialog();
           },
         ),
+        Divider(
+          indent: 10,
+          endIndent: 10,
+        ),
+        ListTile(
+          title: Text(
+            'zurück',
+            style: drawerStyle,
+          ),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed('/HomePage');
+          },
+        )
       ],
     );
   }

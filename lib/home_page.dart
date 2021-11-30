@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zivi_counter_app/drawer_content.dart';
-import 'package:zivi_counter_app/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -10,22 +10,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  SharedPrefs sharedPrefs = SharedPrefs();
+  late SharedPreferences _sharedPreferences;
 
   double size = 300;
   double screenWidth = 1;
   double screenHeight = 1;
   double borderRadius = 20;
   double pi = 3.14;
-  double progress = 0.5;
-
+  double progress = 1;
   int daysLeft = 1;
-  int totalDays = 1;
 
   int progressPercentage = 0;
-
-  DateTime selectedStartDate = DateTime(2021, 8, 1);
-  int? selectedDuration = 9;
 
   var rect;
 
@@ -33,27 +28,59 @@ class _HomePageState extends State<HomePage> {
   TextStyle baseStyle = TextStyle(fontSize: 20, color: Colors.orange[500]);
   TextStyle descriptionStyle = TextStyle(fontSize: 12, color: Colors.grey[400]);
 
-  void calculateDays() {
-    final endDate = DateTime(
-        selectedStartDate.year, selectedStartDate.month + selectedDuration!);
-    daysLeft = -DateTime.now().difference(endDate).inDays;
-    totalDays =
-        DateTimeRange(start: selectedStartDate, end: endDate).duration.inDays;
+  double calculateProgress(DateTime startDate, int duration, DateTime endDate) {
+    final totalDays =
+        DateTimeRange(start: startDate, end: endDate).duration.inDays;
+    progress = (totalDays - daysLeft) / totalDays;
+    return progress;
   }
 
-  void calculateProgress() {
-    progress = (totalDays - daysLeft) / totalDays;
+  int calculateProgressPercentage(double progress) {
     progressPercentage = (progress * 100).round();
+    return progressPercentage;
+  }
+
+  DateTime getStartDate() {
+    final startDate;
+    if (_sharedPreferences.getInt('startDate') != null) {
+      startDate = DateTime.fromMillisecondsSinceEpoch(
+          _sharedPreferences.getInt('startDate')!);
+    } else {
+      startDate = DateTime(2021, 8, 1);
+    }
+    return startDate;
+  }
+
+  int getDuration() {
+    final duration;
+    if (_sharedPreferences.getInt('duration') != null) {
+      duration = _sharedPreferences.getInt('duration') ?? 9;
+    } else {
+      duration = 9;
+    }
+    return duration;
+  }
+
+  void initDates() {
+    final startDate = getStartDate();
+    final duration = getDuration();
+    final endDate = DateTime(startDate.year, startDate.month + duration);
+    daysLeft = -DateTime.now().difference(endDate).inDays;
+    progress = calculateProgress(startDate, duration, endDate);
+    progressPercentage = calculateProgressPercentage(progress);
+    //rebuild UI to show correct values
+    setState(() {});
+  }
+
+  void initSharedPreferences() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    initDates();
   }
 
   @override
   void initState() {
     super.initState();
-    
-    selectedStartDate = sharedPrefs.getStartDate();
-    selectedDuration = sharedPrefs.getDuration() ?? 9;
-    calculateDays();
-    calculateProgress();
+    initSharedPreferences();
   }
 
   @override
