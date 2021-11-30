@@ -123,7 +123,7 @@ class _DrawerContentState extends State<DrawerContent> {
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2019),
-                lastDate: DateTime(2119)))!;
+                lastDate: DateTime(2119)))?? DateTime.now();
             _sharedPreferences.setInt(
                 'startDate', selectedStartDate.millisecondsSinceEpoch);
           },
